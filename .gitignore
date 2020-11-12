@@ -1,0 +1,8 @@
+/old/*.*
+*.asv
+*.log
+*.mat
+*.fig
+*.png
+*.eps
+vecnorm.m
