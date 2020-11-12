@@ -4,7 +4,10 @@ clc;
 
 rng('shuffle');                                                           % Necessary for different seeds in each run of this script
 
-MC = 5;                                                                 % Size of the outer Monte Carlo ensemble (Varies the channel realizarions)
+warning('off','MATLAB:nearlySingularMatrix');
+warning('off','MATLAB:singularMatrix');
+
+MC = 100;                                                                 % Size of the outer Monte Carlo ensemble (Varies the channel realizarions)
 
 M = 50;                                                                   % Number of antennas at the base station
 
