@@ -113,6 +113,6 @@ for mc = 1:MC
             se_s_all_L(:,L,2,2,alg_idx,mc) = [se_s_zf_mmf; zeros(L_max-L,1)];
         end
     end
+    
+    save([root_save strrep(channel_type,'-','_') '_M_' num2str(M) '_K_' num2str(K) '_SNR_' num2str(round(snr_db)) '_dB_R_' num2str(commcell.radius) '_MC_' num2str(MC) '.mat'],'se','se_s_all_L','user_pos','S_set');
 end
-
-save([root_save strrep(channel_type,'-','_') '_M_' num2str(M) '_K_' num2str(K) '_SNR_' num2str(round(snr_db)) '_dB_R_' num2str(commcell.radius) '_MC_' num2str(MC) '.mat'],'se','se_s_all_L','user_pos','S_set');
