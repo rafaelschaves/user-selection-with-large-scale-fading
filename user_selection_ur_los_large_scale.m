@@ -66,7 +66,9 @@ se_s_all_L = zeros(L_max,L_max,N_PRE,N_PA,N_ALG,MC);
 S_set      = zeros(K,L_max,N_PRE,N_ALG,MC);
 eta        = zeros(K,N_PRE);
 
-for mc = 1:MC
+% First simulation stopped at mc = 78
+
+for mc = 79:MC
     mc
     
     [H,beta,user_pos] = massiveMIMOChannel(commcell,channel_type);
