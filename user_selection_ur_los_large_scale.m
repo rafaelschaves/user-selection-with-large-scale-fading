@@ -23,7 +23,7 @@ if ~exist('K','var')
     K = 10;                                                                % Number of users at the cell
 end
 
-N_ALG = 4;
+N_ALG = 2;
 N_PRE = 2;
 N_PA  = 2;
 
@@ -53,7 +53,8 @@ snr        = 10^((snr_db)/10);                                       % SNR
 
 % Initialization
 
-algorithm_type = {'exhaustive search selection ep','exhaustive search selection mmf','semi-orthogonal selection','fr-based selection'};
+% algorithm_type = {'exhaustive search selection ep','exhaustive search selection mmf','semi-orthogonal selection','fr-based selection'};
+algorithm_type = {'semi-orthogonal selection','fr-based selection'};
 
 if K > M
     L_max = M;
@@ -64,14 +65,13 @@ end
 se         = zeros(K,N_PRE,N_PA,MC);
 se_s_all_L = zeros(L_max,L_max,N_PRE,N_PA,N_ALG,MC);
 S_set      = zeros(K,L_max,N_PRE,N_ALG,MC);
+user_pos   = zeros(K,3,MC);
 eta        = zeros(K,N_PRE);
 
-% First simulation stopped at mc = 78
-
-for mc = 79:MC
+for mc = 1:MC
     mc
     
-    [H,beta,user_pos] = massiveMIMOChannel(commcell,channel_type);
+    [H,beta,user_pos(:,:,mc)] = massiveMIMOChannel(commcell,channel_type);
     
     [~,eta(:,1)] = maxMinFairness(H,beta,snr,'algorithm 2');
     eta(:,2)     = (1/sum(1./beta))./beta;
@@ -86,16 +86,16 @@ for mc = 79:MC
         for alg_idx = 1:N_ALG
             [H_s,S_aux] = userSelector(H,beta,snr,algorithm_type{alg_idx},'fixed',L,[]);
             
-            if alg_idx == 1
-                H_aux = H_s(:,:,1);
-                S_set_aux(:,:,alg_idx) = S_aux(:,1:2);
-            elseif alg_idx == 2
-                H_aux = H_s(:,:,1);
-                S_set_aux(:,:,alg_idx) = S_aux;
-            else
+            %if alg_idx == 1
+            %    H_aux = H_s(:,:,1);
+            %    S_set_aux(:,:,alg_idx) = S_aux(:,1:2);
+            %elseif alg_idx == 2
+            %    H_aux = H_s(:,:,1);
+            %    S_set_aux(:,:,alg_idx) = S_aux;
+            %else
                 H_aux = H_s;
                 S_set_aux(:,:,alg_idx) = repmat(S_aux,1,N_PRE);
-            end
+            %end
             
             S_set(S_set_aux(:,1),L,1,alg_idx,mc) = 1;
             S_set(S_set_aux(:,2),L,2,alg_idx,mc) = 1;

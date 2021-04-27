@@ -7,11 +7,11 @@ rng('shuffle');                                                           % Nece
 warning('off','MATLAB:nearlySingularMatrix');
 warning('off','MATLAB:singularMatrix');
 
-MC = 100;                                                                 % Size of the outer Monte Carlo ensemble (Varies the channel realizarions)
+MC = 1000;                                                                 % Size of the outer Monte Carlo ensemble (Varies the channel realizarions)
 
 M = 50;                                                                   % Number of antennas at the base station
 
-for K = [10 25]                                                           % Number of users at the cell
+for K = [75]                                                           % Number of users at the cell
     K
     run user_selection_ur_los_large_scale.m
 end
