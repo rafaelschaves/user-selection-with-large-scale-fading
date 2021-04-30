@@ -86,16 +86,16 @@ for mc = 1:MC
         for alg_idx = 1:N_ALG
             [H_s,S_aux] = userSelector(H,beta,snr,algorithm_type{alg_idx},'fixed',L,[]);
             
-            if alg_idx == 1
-                H_aux = H_s(:,:,1);
-                S_set_aux(:,:,alg_idx) = S_aux(:,1:2);
-            elseif alg_idx == 2
-                H_aux = H_s(:,:,1);
-                S_set_aux(:,:,alg_idx) = S_aux;
-            else
+            %if alg_idx == 1
+            %    H_aux = H_s(:,:,1);
+            %    S_set_aux(:,:,alg_idx) = S_aux(:,1:2);
+            %elseif alg_idx == 2
+            %    H_aux = H_s(:,:,1);
+            %    S_set_aux(:,:,alg_idx) = S_aux;
+            %else
                 H_aux = H_s;
                 S_set_aux(:,:,alg_idx) = repmat(S_aux,1,N_PRE);
-            end
+            %end
             
             S_set(S_set_aux(:,1),L,1,alg_idx,mc) = 1;
             S_set(S_set_aux(:,2),L,2,alg_idx,mc) = 1;
