@@ -7,7 +7,7 @@ clc;
 MC = 100;                                                                                                                                          % Size of the monte-carlo ensemble
 
 M = 50;                                                                                                                                              % Number of antennas at base station
-K = 25;                                                                                                                                              % Number of users at the cell 
+K = 10;                                                                                                                                              % Number of users at the cell 
 L = K-1;
 
 N_ALG = 4;                                                                                                                                            % Number of algorithms for perform user scheduling
@@ -30,7 +30,7 @@ root_save = '../../../../Google Drive/UFRJ/PhD/Codes/user-selection-with-large-s
 sum_se_s = zeros(L,N_PRE,N_PA,N_ALG,MC);
 min_se_s = zeros(L,N_PRE,N_PA,N_ALG,MC);
 
-load([root_load 'se_all_L_ur_los_M_' num2str(M) '_K_' num2str(K) '_SNR_' num2str(snr) '_dB_R_' num2str(R) '_MC_' num2str(MC) '.mat']);
+load([root_load 'se_es_all_L_ur_los_M_0' num2str(M) '_K_0' num2str(K) '_SNR_' num2str(snr) '_dB_R_' num2str(R) '_MC_0' num2str(MC) '_01.mat']);
 
 sum_se = reshape(sum(se,1),N_PRE,N_PA,MC);
 min_se = reshape(min(se,[],1),N_PRE,N_PA,MC);
@@ -173,9 +173,9 @@ for n_pa = 1:N_PA
             ylim([0 1]);
     
             if savefig == 1
-                saveas(gcf,[root_save 'cdf_throughput_ur_los_' legend_pa{n_pa} '_M_' num2str(M) '_K_' num2str(K) '_L_' num2str(L) '_SNR_' num2str(snr) '_dB_R_' num2str(R) '_MC_' num2str(MC)],'fig');
-                saveas(gcf,[root_save 'cdf_throughput_ur_los_' legend_pa{n_pa} '_M_' num2str(M) '_K_' num2str(K) '_L_' num2str(L) '_SNR_' num2str(snr) '_dB_R_' num2str(R) '_MC_' num2str(MC)],'png');
-                saveas(gcf,[root_save 'cdf_throughput_ur_los_' legend_pa{n_pa} '_M_' num2str(M) '_K_' num2str(K) '_L_' num2str(L) '_SNR_' num2str(snr) '_dB_R_' num2str(R) '_MC_' num2str(MC)],'epsc2');
+                saveas(gcf,[root_save 'cdf_throughput_ur_los_' legend_pa{n_pa} '_M_' num2str(M) '_K_' num2str(K) '_L_' num2str(L_prime) '_SNR_' num2str(snr) '_dB_R_' num2str(R) '_MC_' num2str(MC)],'fig');
+                saveas(gcf,[root_save 'cdf_throughput_ur_los_' legend_pa{n_pa} '_M_' num2str(M) '_K_' num2str(K) '_L_' num2str(L_prime) '_SNR_' num2str(snr) '_dB_R_' num2str(R) '_MC_' num2str(MC)],'png');
+                saveas(gcf,[root_save 'cdf_throughput_ur_los_' legend_pa{n_pa} '_M_' num2str(M) '_K_' num2str(K) '_L_' num2str(L_prime) '_SNR_' num2str(snr) '_dB_R_' num2str(R) '_MC_' num2str(MC)],'epsc2');
             end
         case 2
             figure;
@@ -251,9 +251,9 @@ for n_pa = 1:N_PA
             ylim([0 1]);
     
             if savefig == 1
-                saveas(gcf,[root_save 'cdf_min_throughput_ur_los_' legend_pa{n_pa} '_M_' num2str(M) '_K_' num2str(K) '_L_' num2str(L) '_SNR_' num2str(snr) '_dB_R_' num2str(R) '_MC_' num2str(MC)],'fig');
-                saveas(gcf,[root_save 'cdf_min_throughput_ur_los_' legend_pa{n_pa} '_M_' num2str(M) '_K_' num2str(K) '_L_' num2str(L) '_SNR_' num2str(snr) '_dB_R_' num2str(R) '_MC_' num2str(MC)],'png');
-                saveas(gcf,[root_save 'cdf_min_throughput_ur_los_' legend_pa{n_pa} '_M_' num2str(M) '_K_' num2str(K) '_L_' num2str(L) '_SNR_' num2str(snr) '_dB_R_' num2str(R) '_MC_' num2str(MC)],'epsc2');
+                saveas(gcf,[root_save 'cdf_min_throughput_ur_los_' legend_pa{n_pa} '_M_' num2str(M) '_K_' num2str(K) '_L_' num2str(L_prime) '_SNR_' num2str(snr) '_dB_R_' num2str(R) '_MC_' num2str(MC)],'fig');
+                saveas(gcf,[root_save 'cdf_min_throughput_ur_los_' legend_pa{n_pa} '_M_' num2str(M) '_K_' num2str(K) '_L_' num2str(L_prime) '_SNR_' num2str(snr) '_dB_R_' num2str(R) '_MC_' num2str(MC)],'png');
+                saveas(gcf,[root_save 'cdf_min_throughput_ur_los_' legend_pa{n_pa} '_M_' num2str(M) '_K_' num2str(K) '_L_' num2str(L_prime) '_SNR_' num2str(snr) '_dB_R_' num2str(R) '_MC_' num2str(MC)],'epsc2');
             end
     end
 end

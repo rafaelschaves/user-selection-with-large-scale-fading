@@ -7,10 +7,7 @@ clc;
 MC = 1000;                                                               % Size of the monte-carlo ensemble
 
 M  = 100;                                                                   % Number of antennas at base station
-K  = 150;                                                                   % Number of users at the cell 
-
-% M = 50  & K = 75
-% M = 100 & K = 150 
+K  = 75;                                                                   % Number of users at the cell 
 
 if K > M
     L_max = M;
@@ -43,9 +40,7 @@ chn_type = 'ur_los';
 sum_se_s = zeros(L_max,N_PRE,N_PA,N_ALG,MC);
 min_se_s = zeros(L_max,N_PRE,N_PA,N_ALG,MC);
 
-% load([root_load 'spectral_efficiency_all_L_' chn_type '_partial_csi_M_' sprintf(zero_pad_1,M) '_K_' sprintf(zero_pad_1,K) '_SNR_' num2str(snr) '_dB_MC_' num2str(MC) '_' sprintf(zero_pad_2,n_mc) '.mat']);
-% load([root_load 'spectral_efficiency_all_L_' chn_type '_M_' sprintf(zero_pad_1,M) '_K_' sprintf(zero_pad_1,K) '_SNR_' num2str(snr) '_dB_MC_' num2str(MC) '_' sprintf(zero_pad_2,n_mc) '.mat']);
-load([root_load 'se_all_L_ur_los_M_' num2str(M) '_K_' num2str(K) '_SNR_' num2str(snr) '_dB_R_' num2str(R) '_MC_' num2str(MC) '.mat']);
+load([root_load 'se_all_L_ur_los_M_' sprintf(zero_pad_1,M) '_K_' sprintf(zero_pad_1,K) '_SNR_' num2str(snr) '_dB_R_' num2str(R) '_MC_' num2str(MC) '_01.mat']);
             
 sum_se = reshape(sum(se,1),N_PRE,N_PA,MC);
 min_se = reshape(min(se,[],1),N_PRE,N_PA,MC);
@@ -92,7 +87,7 @@ linestyle = {'-','--',':'};
 
 OM = 1e-6;
 
-savefig = 0;
+savefig = 1;
 
 legend_pa             = {'EP','MMF'};
 legend_algo           = {'SOS','FRBS'};
