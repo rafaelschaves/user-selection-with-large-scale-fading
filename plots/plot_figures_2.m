@@ -1,13 +1,13 @@
 clear;
-close all;
+% close all;
 clc;
 
 % Macros
 
 MC = 1000;                                                               % Size of the monte-carlo ensemble
 
-M  = 100;                                                                   % Number of antennas at base station
-K  = 75;                                                                   % Number of users at the cell 
+M  = 50;                                                                   % Number of antennas at base station
+K  = 10;                                                                   % Number of users at the cell 
 
 if K > M
     L_max = M;
