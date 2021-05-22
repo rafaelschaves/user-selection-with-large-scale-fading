@@ -29,7 +29,7 @@ N_PA  = 2;
 
 commcell.nAntennas       = M;                                        % Number of Antennas
 commcell.nUsers          = K;                                        % Number of Users
-commcell.radius          = 2000;                                      % Cell's raidus (circumradius) in meters
+commcell.radius          = 500;                                      % Cell's raidus (circumradius) in meters
 commcell.bsHeight        = 32;                                       % Height of base station in meters
 commcell.userHeight      = [1 2];                                    % Height of user terminals in meters ([min max])
 commcell.nPaths          = 30;                                       % Number of Multipaths
@@ -53,8 +53,8 @@ snr        = 10^((snr_db)/10);                                       % SNR
 
 % Initialization
 
-% algorithm_type = {'exhaustive search selection ep','exhaustive search selection mmf','semi-orthogonal selection','fr-based selection'};
-algorithm_type = {'semi-orthogonal selection','fr-based selection'};
+algorithm_type = {'exhaustive search selection ep','exhaustive search selection mmf','semi-orthogonal selection','fr-based selection'};
+% algorithm_type = {'semi-orthogonal selection','fr-based selection'};
 
 if K > M
     L_max = M;

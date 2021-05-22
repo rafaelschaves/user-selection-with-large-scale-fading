@@ -1,5 +1,5 @@
 clear;
-% close all;
+close all;
 clc;
 
 % Macros
@@ -7,7 +7,7 @@ clc;
 MC = 1000;                                                               % Size of the monte-carlo ensemble
 
 M  = 50;                                                                   % Number of antennas at base station
-K  = 10;                                                                   % Number of users at the cell 
+K  = 25;                                                                   % Number of users at the cell 
 
 if K > M
     L_max = M;
@@ -31,7 +31,7 @@ root_load = '../../../../Google Drive/UFRJ/PhD/Codes/user-selection-with-large-s
 root_save = '../../../../Google Drive/UFRJ/PhD/Codes/user-selection-with-large-scale-fading/Figures/';
 
 zero_pad_1 = '%03d';
-zero_pad_2 = '%02d';
+zero_pad_2 = '%04d';
 
 chn_type = 'ur_los';
 
@@ -40,7 +40,7 @@ chn_type = 'ur_los';
 sum_se_s = zeros(L_max,N_PRE,N_PA,N_ALG,MC);
 min_se_s = zeros(L_max,N_PRE,N_PA,N_ALG,MC);
 
-load([root_load 'se_all_L_ur_los_M_' sprintf(zero_pad_1,M) '_K_' sprintf(zero_pad_1,K) '_SNR_' num2str(snr) '_dB_R_' num2str(R) '_MC_' num2str(MC) '_01.mat']);
+load([root_load 'se_all_L_ur_los_M_' sprintf(zero_pad_1,M) '_K_' sprintf(zero_pad_1,K) '_SNR_' num2str(snr) '_dB_R_' sprintf(zero_pad_2,R) '_MC_' num2str(MC) '_01.mat']);
             
 sum_se = reshape(sum(se,1),N_PRE,N_PA,MC);
 min_se = reshape(min(se,[],1),N_PRE,N_PA,MC);
