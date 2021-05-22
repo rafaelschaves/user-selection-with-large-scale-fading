@@ -19,7 +19,7 @@ N_ALG = 2;                                                                 % Num
 N_PRE = 2;
 N_PA  = 2;
 
-R = 500;
+R = 2000;
 snr = 132;
 
 bandwidth   = 20e6;
@@ -87,7 +87,7 @@ linestyle = {'-','--',':'};
 
 OM = 1e-6;
 
-savefig = 1;
+savefig = 0;
 
 legend_pa             = {'EP','MMF'};
 legend_algo           = {'SOS','FRBS'};

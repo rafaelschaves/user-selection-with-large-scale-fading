@@ -353,7 +353,7 @@ switch type
         for i = 1:K-L
             psi = ici(H_aux);
             
-            [~,S_set_drop(i)] = max(psi./beta);
+            [~,S_set_drop(i)] = max(psi./sqrt(beta));
             
             H_aux(:,S_set_drop(i)) = zeros(M,1);
         end
