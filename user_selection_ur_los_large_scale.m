@@ -68,7 +68,7 @@ S_set      = zeros(K,L_max,N_PRE,N_ALG,MC);
 user_pos   = zeros(K,3,MC);
 eta        = zeros(K,N_PRE);
 
-for mc = 1:MC
+for mc = 83:MC
     mc
     
     [H,beta,user_pos(:,:,mc)] = massiveMIMOChannel(commcell,channel_type);

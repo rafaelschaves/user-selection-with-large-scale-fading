@@ -7,7 +7,7 @@ clc;
 MC = 1000;                                                               % Size of the monte-carlo ensemble
 
 M  = 50;                                                                   % Number of antennas at base station
-K  = 25;                                                                   % Number of users at the cell 
+K  = 75;                                                                   % Number of users at the cell 
 
 if K > M
     L_max = M;
@@ -87,7 +87,7 @@ linestyle = {'-','--',':'};
 
 OM = 1e-6;
 
-savefig = 0;
+savefig = 1;
 
 legend_pa             = {'EP','MMF'};
 legend_algo           = {'SOS','FRBS'};

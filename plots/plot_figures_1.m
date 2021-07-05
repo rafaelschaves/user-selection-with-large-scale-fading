@@ -5,9 +5,11 @@ clc;
 % Macros
 
 MC = 100;                                                                                                                                          % Size of the monte-carlo ensemble
+MC_2 = 82;
+% MC_2 = 100;
 
 M = 50;                                                                                                                                              % Number of antennas at base station
-K = 10;                                                                                                                                              % Number of users at the cell 
+K = 25;                                                                                                                                              % Number of users at the cell 
 L = K-1;
 
 N_ALG = 4;                                                                                                                                            % Number of algorithms for perform user scheduling
@@ -30,7 +32,7 @@ root_save = '../../../../Google Drive/UFRJ/PhD/Codes/user-selection-with-large-s
 sum_se_s = zeros(L,N_PRE,N_PA,N_ALG,MC);
 min_se_s = zeros(L,N_PRE,N_PA,N_ALG,MC);
 
-load([root_load 'se_es_all_L_ur_los_M_0' num2str(M) '_K_0' num2str(K) '_SNR_' num2str(snr) '_dB_R_' num2str(R) '_MC_0' num2str(MC) '_01.mat']);
+load([root_load 'se_all_L_ur_los_M_0' num2str(M) '_K_0' num2str(K) '_SNR_' num2str(snr) '_dB_R_0' num2str(R) '_MC_0' num2str(MC) '_01.mat']);
 
 sum_se = reshape(sum(se,1),N_PRE,N_PA,MC);
 min_se = reshape(min(se,[],1),N_PRE,N_PA,MC);
@@ -46,21 +48,31 @@ avg_sum_thrgpt_s = bandwidth*dl_ul_ratio*mean(sum_se_s,5);
 avg_min_thrgpt   = bandwidth*dl_ul_ratio*mean(min_se,3);
 avg_min_thrgpt_s = bandwidth*dl_ul_ratio*mean(min_se_s,5);
 
-L_prime = ceil(K/5);
+[max_sum_thrgpt_s,L_star] = max(avg_sum_thrgpt_s,[],1);
+ 
+max_sum_thrgpt_s = permute(max_sum_thrgpt_s,[4 2 3 1]);
+L_star           = permute(L_star,[4 2 3 1]);
+
+% L_prime = ceil(K/5);
+L_prime = L_star;
 
 N_BIN = 25;
 
+cdf_pus_thrgpt = zeros(N_BIN,N_PRE,N_PA,N_ALG);
 cdf_sum_thrgpt = zeros(N_BIN,N_PRE,N_PA,N_ALG);
 cdf_min_thrgpt = zeros(N_BIN,N_PRE,N_PA,N_ALG);
 
+edg_pus_thrgpt = zeros(N_BIN+1,N_PRE,N_PA,N_ALG);
 edg_sum_thrgpt = zeros(N_BIN+1,N_PRE,N_PA,N_ALG);
 edg_min_thrgpt = zeros(N_BIN+1,N_PRE,N_PA,N_ALG);
 
 for n_alg = 1:N_ALG
     for n_pa = 1:N_PA
         for n_pre = 1:N_PRE
-            [cdf_sum_thrgpt(:,n_pre,n_pa,n_alg),edg_sum_thrgpt(:,n_pre,n_pa,n_alg)] = histcounts(bandwidth*dl_ul_ratio*sum_se_s(L_prime,n_pre,n_pa,n_alg,:),N_BIN,'normalization','cdf');
-            [cdf_min_thrgpt(:,n_pre,n_pa,n_alg),edg_min_thrgpt(:,n_pre,n_pa,n_alg)] = histcounts(bandwidth*dl_ul_ratio*min_se_s(L_prime,n_pre,n_pa,n_alg,:),N_BIN,'normalization','cdf');
+            pus_thrgpt = bandwidth*dl_ul_ratio*se_s_all_L(1:L_star(n_alg,n_pre,n_pa),L_star(n_alg,n_pre,n_pa),n_pre,n_pa,n_alg,1:MC_2);
+            [cdf_pus_thrgpt(:,n_pre,n_pa,n_alg),edg_pus_thrgpt(:,n_pre,n_pa,n_alg)] = histcounts(pus_thrgpt,N_BIN,'normalization','cdf');
+            % [cdf_sum_thrgpt(:,n_pre,n_pa,n_alg),edg_sum_thrgpt(:,n_pre,n_pa,n_alg)] = histcounts(bandwidth*dl_ul_ratio*sum_se_s(L_prime,n_pre,n_pa,n_alg,:),N_BIN,'normalization','cdf');
+            % [cdf_min_thrgpt(:,n_pre,n_pa,n_alg),edg_min_thrgpt(:,n_pre,n_pa,n_alg)] = histcounts(bandwidth*dl_ul_ratio*min_se_s(L_prime,n_pre,n_pa,n_alg,:),N_BIN,'normalization','cdf');
         end
     end
 end
@@ -80,8 +92,8 @@ OM = 1e-6;
 savefig = 1;
  
 legend_pa             = {'EP','MMF'};
-legend_algo           = {'ESEP','ESMMF','SOS','FRBS'};
-legend_algo_plus_prec = {'ESEP','ESMMF','SOS','FRBS','MRT','ZF'};
+legend_algo           = {'ESEPA','ESMMFPA','SOS','FRBS'};
+legend_algo_plus_prec = {'ESEPA','ESMMFPA','SOS','FRBS','MRT','ZF'};
 
 location_1 = 'northwest';
 location_2 = 'northeast';
@@ -138,34 +150,22 @@ for n_pa = 1:N_PA
                 saveas(gcf,[root_save 'throughput_all_L_ur_los_' legend_pa{n_pa} '_M_' num2str(M) '_K_' num2str(K) '_SNR_' num2str(snr) '_dB_R_' num2str(R) '_MC_' num2str(MC)],'png');
                 saveas(gcf,[root_save 'throughput_all_L_ur_los_' legend_pa{n_pa} '_M_' num2str(M) '_K_' num2str(K) '_SNR_' num2str(snr) '_dB_R_' num2str(R) '_MC_' num2str(MC)],'epsc2');
             end
-
+            
             figure;
     
             set(gcf,'position',[0 0 800 600]);
     
             % Plots for user selection algorihtm legends
-            plot(OM*edg_sum_thrgpt(:,1,n_pa,1),[cdf_sum_thrgpt(:,1,n_pa,1); 1],'-' ,'color',colours(1,:),'linewidth',linewidth);
+            plot(OM*edg_pus_thrgpt(:,2,n_pa,1),[cdf_pus_thrgpt(:,2,n_pa,1); 1],'--','color',colours(1,:),'linewidth',linewidth);
             hold on;
-            plot(OM*edg_sum_thrgpt(:,1,n_pa,2),[cdf_sum_thrgpt(:,1,n_pa,2); 1],'-' ,'color',colours(2,:),'linewidth',linewidth);
-            plot(OM*edg_sum_thrgpt(:,1,n_pa,3),[cdf_sum_thrgpt(:,1,n_pa,3); 1],'-' ,'color',colours(3,:),'linewidth',linewidth);
-            plot(OM*edg_sum_thrgpt(:,1,n_pa,4),[cdf_sum_thrgpt(:,1,n_pa,4); 1],'-' ,'color',colours(4,:),'linewidth',linewidth);
-            % Plots for precoding algorithm legends
-            plot(OM*edg_sum_thrgpt(:,1,n_pa,1),[cdf_sum_thrgpt(:,1,n_pa,1); 1],'-' ,'color',colours(8,:),'linewidth',linewidth);
-            plot(OM*edg_sum_thrgpt(:,2,n_pa,1),[cdf_sum_thrgpt(:,2,n_pa,1); 1],'--','color',colours(8,:),'linewidth',linewidth);
-            % Plots for results
-            plot(OM*edg_sum_thrgpt(:,1,n_pa,1),[cdf_sum_thrgpt(:,1,n_pa,1); 1],'-' ,'color',colours(1,:),'linewidth',linewidth);
-            plot(OM*edg_sum_thrgpt(:,1,n_pa,2),[cdf_sum_thrgpt(:,1,n_pa,2); 1],'-' ,'color',colours(2,:),'linewidth',linewidth);
-            plot(OM*edg_sum_thrgpt(:,1,n_pa,3),[cdf_sum_thrgpt(:,1,n_pa,3); 1],'-' ,'color',colours(3,:),'linewidth',linewidth);
-            plot(OM*edg_sum_thrgpt(:,1,n_pa,4),[cdf_sum_thrgpt(:,1,n_pa,4); 1],'-' ,'color',colours(4,:),'linewidth',linewidth);
-            plot(OM*edg_sum_thrgpt(:,2,n_pa,1),[cdf_sum_thrgpt(:,2,n_pa,1); 1],'--','color',colours(1,:),'linewidth',linewidth);
-            plot(OM*edg_sum_thrgpt(:,2,n_pa,2),[cdf_sum_thrgpt(:,2,n_pa,2); 1],'--','color',colours(2,:),'linewidth',linewidth);
-            plot(OM*edg_sum_thrgpt(:,2,n_pa,3),[cdf_sum_thrgpt(:,2,n_pa,3); 1],'--','color',colours(3,:),'linewidth',linewidth);
-            plot(OM*edg_sum_thrgpt(:,2,n_pa,4),[cdf_sum_thrgpt(:,2,n_pa,4); 1],'--','color',colours(4,:),'linewidth',linewidth);
+            plot(OM*edg_pus_thrgpt(:,2,n_pa,2),[cdf_pus_thrgpt(:,2,n_pa,2); 1],'--','color',colours(2,:),'linewidth',linewidth);
+            plot(OM*edg_pus_thrgpt(:,2,n_pa,3),[cdf_pus_thrgpt(:,2,n_pa,3); 1],'--','color',colours(3,:),'linewidth',linewidth);
+            plot(OM*edg_pus_thrgpt(:,2,n_pa,4),[cdf_pus_thrgpt(:,2,n_pa,4); 1],'--','color',colours(4,:),'linewidth',linewidth);
     
-            xlabel('Throughput (Mbps)','fontname',fontname,'fontsize',fontsize);
+            xlabel('Per-user throughput (Mbps)','fontname',fontname,'fontsize',fontsize);
             ylabel('Cumulative distribution','fontname',fontname,'fontsize',fontsize);
     
-            legend(legend_algo_plus_prec,'fontname',fontname,'fontsize',fontsize,'location',location_1,'numcolumns',2);
+            legend(legend_algo_plus_prec,'fontname',fontname,'fontsize',fontsize,'location',location_4,'numcolumns',2);
             legend box off;
     
             set(gca,'fontname',fontname,'fontsize',fontsize);
@@ -173,10 +173,49 @@ for n_pa = 1:N_PA
             ylim([0 1]);
     
             if savefig == 1
-                saveas(gcf,[root_save 'cdf_throughput_ur_los_' legend_pa{n_pa} '_M_' num2str(M) '_K_' num2str(K) '_L_' num2str(L_prime) '_SNR_' num2str(snr) '_dB_R_' num2str(R) '_MC_' num2str(MC)],'fig');
-                saveas(gcf,[root_save 'cdf_throughput_ur_los_' legend_pa{n_pa} '_M_' num2str(M) '_K_' num2str(K) '_L_' num2str(L_prime) '_SNR_' num2str(snr) '_dB_R_' num2str(R) '_MC_' num2str(MC)],'png');
-                saveas(gcf,[root_save 'cdf_throughput_ur_los_' legend_pa{n_pa} '_M_' num2str(M) '_K_' num2str(K) '_L_' num2str(L_prime) '_SNR_' num2str(snr) '_dB_R_' num2str(R) '_MC_' num2str(MC)],'epsc2');
+                saveas(gcf,[root_save 'cdf_pus_throughput_ur_los_' legend_pa{n_pa} '_M_' num2str(M) '_K_' num2str(K) '_SNR_' num2str(snr) '_dB_R_' num2str(R) '_MC_' num2str(MC)],'fig');
+                saveas(gcf,[root_save 'cdf_pus_throughput_ur_los_' legend_pa{n_pa} '_M_' num2str(M) '_K_' num2str(K) '_SNR_' num2str(snr) '_dB_R_' num2str(R) '_MC_' num2str(MC)],'png');
+                saveas(gcf,[root_save 'cdf_pus_throughput_ur_los_' legend_pa{n_pa} '_M_' num2str(M) '_K_' num2str(K) '_SNR_' num2str(snr) '_dB_R_' num2str(R) '_MC_' num2str(MC)],'epsc2');
             end
+            
+%             figure;
+%     
+%             set(gcf,'position',[0 0 800 600]);
+%     
+%             % Plots for user selection algorihtm legends
+%             plot(OM*edg_sum_thrgpt(:,1,n_pa,1),[cdf_sum_thrgpt(:,1,n_pa,1); 1],'-' ,'color',colours(1,:),'linewidth',linewidth);
+%             hold on;
+%             plot(OM*edg_sum_thrgpt(:,1,n_pa,2),[cdf_sum_thrgpt(:,1,n_pa,2); 1],'-' ,'color',colours(2,:),'linewidth',linewidth);
+%             plot(OM*edg_sum_thrgpt(:,1,n_pa,3),[cdf_sum_thrgpt(:,1,n_pa,3); 1],'-' ,'color',colours(3,:),'linewidth',linewidth);
+%             plot(OM*edg_sum_thrgpt(:,1,n_pa,4),[cdf_sum_thrgpt(:,1,n_pa,4); 1],'-' ,'color',colours(4,:),'linewidth',linewidth);
+%             % Plots for precoding algorithm legends
+%             plot(OM*edg_sum_thrgpt(:,1,n_pa,1),[cdf_sum_thrgpt(:,1,n_pa,1); 1],'-' ,'color',colours(8,:),'linewidth',linewidth);
+%             plot(OM*edg_sum_thrgpt(:,2,n_pa,1),[cdf_sum_thrgpt(:,2,n_pa,1); 1],'--','color',colours(8,:),'linewidth',linewidth);
+%             % Plots for results
+%             plot(OM*edg_sum_thrgpt(:,1,n_pa,1),[cdf_sum_thrgpt(:,1,n_pa,1); 1],'-' ,'color',colours(1,:),'linewidth',linewidth);
+%             plot(OM*edg_sum_thrgpt(:,1,n_pa,2),[cdf_sum_thrgpt(:,1,n_pa,2); 1],'-' ,'color',colours(2,:),'linewidth',linewidth);
+%             plot(OM*edg_sum_thrgpt(:,1,n_pa,3),[cdf_sum_thrgpt(:,1,n_pa,3); 1],'-' ,'color',colours(3,:),'linewidth',linewidth);
+%             plot(OM*edg_sum_thrgpt(:,1,n_pa,4),[cdf_sum_thrgpt(:,1,n_pa,4); 1],'-' ,'color',colours(4,:),'linewidth',linewidth);
+%             plot(OM*edg_sum_thrgpt(:,2,n_pa,1),[cdf_sum_thrgpt(:,2,n_pa,1); 1],'--','color',colours(1,:),'linewidth',linewidth);
+%             plot(OM*edg_sum_thrgpt(:,2,n_pa,2),[cdf_sum_thrgpt(:,2,n_pa,2); 1],'--','color',colours(2,:),'linewidth',linewidth);
+%             plot(OM*edg_sum_thrgpt(:,2,n_pa,3),[cdf_sum_thrgpt(:,2,n_pa,3); 1],'--','color',colours(3,:),'linewidth',linewidth);
+%             plot(OM*edg_sum_thrgpt(:,2,n_pa,4),[cdf_sum_thrgpt(:,2,n_pa,4); 1],'--','color',colours(4,:),'linewidth',linewidth);
+%     
+%             xlabel('Throughput (Mbps)','fontname',fontname,'fontsize',fontsize);
+%             ylabel('Cumulative distribution','fontname',fontname,'fontsize',fontsize);
+%     
+%             legend(legend_algo_plus_prec,'fontname',fontname,'fontsize',fontsize,'location',location_1,'numcolumns',2);
+%             legend box off;
+%     
+%             set(gca,'fontname',fontname,'fontsize',fontsize);
+%     
+%             ylim([0 1]);
+%     
+%             if savefig == 1
+%                 saveas(gcf,[root_save 'cdf_throughput_ur_los_' legend_pa{n_pa} '_M_' num2str(M) '_K_' num2str(K) '_L_' num2str(L_prime) '_SNR_' num2str(snr) '_dB_R_' num2str(R) '_MC_' num2str(MC)],'fig');
+%                 saveas(gcf,[root_save 'cdf_throughput_ur_los_' legend_pa{n_pa} '_M_' num2str(M) '_K_' num2str(K) '_L_' num2str(L_prime) '_SNR_' num2str(snr) '_dB_R_' num2str(R) '_MC_' num2str(MC)],'png');
+%                 saveas(gcf,[root_save 'cdf_throughput_ur_los_' legend_pa{n_pa} '_M_' num2str(M) '_K_' num2str(K) '_L_' num2str(L_prime) '_SNR_' num2str(snr) '_dB_R_' num2str(R) '_MC_' num2str(MC)],'epsc2');
+%             end
         case 2
             figure;
     
@@ -217,43 +256,43 @@ for n_pa = 1:N_PA
                 saveas(gcf,[root_save 'min_throughput_all_L_ur_los_' legend_pa{n_pa} '_M_' num2str(M) '_K_' num2str(K) '_SNR_' num2str(snr) '_dB_R_' num2str(R) '_MC_' num2str(MC)],'epsc2');
             end
     
-            figure;
-    
-            set(gcf,'position',[0 0 800 600]);
-    
-            % Plots for user selection algorihtm legends
-            plot(OM*edg_min_thrgpt(:,1,n_pa,1),[cdf_min_thrgpt(:,1,n_pa,1); 1],'-' ,'color',colours(1,:),'linewidth',linewidth);
-            hold on;
-            plot(OM*edg_min_thrgpt(:,1,n_pa,2),[cdf_min_thrgpt(:,1,n_pa,2); 1],'-' ,'color',colours(2,:),'linewidth',linewidth);
-            plot(OM*edg_min_thrgpt(:,1,n_pa,3),[cdf_min_thrgpt(:,1,n_pa,3); 1],'-' ,'color',colours(3,:),'linewidth',linewidth);
-            plot(OM*edg_min_thrgpt(:,1,n_pa,4),[cdf_min_thrgpt(:,1,n_pa,4); 1],'-' ,'color',colours(4,:),'linewidth',linewidth);
-            % Plots for precoding algorithm legends
-            plot(OM*edg_min_thrgpt(:,1,n_pa,1),[cdf_min_thrgpt(:,1,n_pa,1); 1],'-' ,'color',colours(8,:),'linewidth',linewidth);
-            plot(OM*edg_min_thrgpt(:,2,n_pa,1),[cdf_min_thrgpt(:,2,n_pa,1); 1],'--','color',colours(8,:),'linewidth',linewidth);
-            % Plots for results
-            plot(OM*edg_min_thrgpt(:,1,n_pa,1),[cdf_min_thrgpt(:,1,n_pa,1); 1],'-' ,'color',colours(1,:),'linewidth',linewidth);
-            plot(OM*edg_min_thrgpt(:,1,n_pa,2),[cdf_min_thrgpt(:,1,n_pa,2); 1],'-' ,'color',colours(2,:),'linewidth',linewidth);
-            plot(OM*edg_min_thrgpt(:,1,n_pa,3),[cdf_min_thrgpt(:,1,n_pa,3); 1],'-' ,'color',colours(3,:),'linewidth',linewidth);
-            plot(OM*edg_min_thrgpt(:,1,n_pa,4),[cdf_min_thrgpt(:,1,n_pa,4); 1],'-' ,'color',colours(4,:),'linewidth',linewidth);
-            plot(OM*edg_min_thrgpt(:,2,n_pa,1),[cdf_min_thrgpt(:,2,n_pa,1); 1],'--','color',colours(1,:),'linewidth',linewidth);
-            plot(OM*edg_min_thrgpt(:,2,n_pa,2),[cdf_min_thrgpt(:,2,n_pa,2); 1],'--','color',colours(2,:),'linewidth',linewidth);
-            plot(OM*edg_min_thrgpt(:,2,n_pa,3),[cdf_min_thrgpt(:,2,n_pa,3); 1],'--','color',colours(3,:),'linewidth',linewidth);
-            plot(OM*edg_min_thrgpt(:,2,n_pa,4),[cdf_min_thrgpt(:,2,n_pa,4); 1],'--','color',colours(4,:),'linewidth',linewidth);
-    
-            xlabel('Min-throughput (Mbps)','fontname',fontname,'fontsize',fontsize);
-            ylabel('Cumulative distribution','fontname',fontname,'fontsize',fontsize);
-    
-            legend(legend_algo_plus_prec,'fontname',fontname,'fontsize',fontsize,'location',location_1,'numcolumns',2);
-            legend box off;
-    
-            set(gca,'fontname',fontname,'fontsize',fontsize);
-    
-            ylim([0 1]);
-    
-            if savefig == 1
-                saveas(gcf,[root_save 'cdf_min_throughput_ur_los_' legend_pa{n_pa} '_M_' num2str(M) '_K_' num2str(K) '_L_' num2str(L_prime) '_SNR_' num2str(snr) '_dB_R_' num2str(R) '_MC_' num2str(MC)],'fig');
-                saveas(gcf,[root_save 'cdf_min_throughput_ur_los_' legend_pa{n_pa} '_M_' num2str(M) '_K_' num2str(K) '_L_' num2str(L_prime) '_SNR_' num2str(snr) '_dB_R_' num2str(R) '_MC_' num2str(MC)],'png');
-                saveas(gcf,[root_save 'cdf_min_throughput_ur_los_' legend_pa{n_pa} '_M_' num2str(M) '_K_' num2str(K) '_L_' num2str(L_prime) '_SNR_' num2str(snr) '_dB_R_' num2str(R) '_MC_' num2str(MC)],'epsc2');
-            end
+%             figure;
+%     
+%             set(gcf,'position',[0 0 800 600]);
+%     
+%             % Plots for user selection algorihtm legends
+%             plot(OM*edg_min_thrgpt(:,1,n_pa,1),[cdf_min_thrgpt(:,1,n_pa,1); 1],'-' ,'color',colours(1,:),'linewidth',linewidth);
+%             hold on;
+%             plot(OM*edg_min_thrgpt(:,1,n_pa,2),[cdf_min_thrgpt(:,1,n_pa,2); 1],'-' ,'color',colours(2,:),'linewidth',linewidth);
+%             plot(OM*edg_min_thrgpt(:,1,n_pa,3),[cdf_min_thrgpt(:,1,n_pa,3); 1],'-' ,'color',colours(3,:),'linewidth',linewidth);
+%             plot(OM*edg_min_thrgpt(:,1,n_pa,4),[cdf_min_thrgpt(:,1,n_pa,4); 1],'-' ,'color',colours(4,:),'linewidth',linewidth);
+%             % Plots for precoding algorithm legends
+%             plot(OM*edg_min_thrgpt(:,1,n_pa,1),[cdf_min_thrgpt(:,1,n_pa,1); 1],'-' ,'color',colours(8,:),'linewidth',linewidth);
+%             plot(OM*edg_min_thrgpt(:,2,n_pa,1),[cdf_min_thrgpt(:,2,n_pa,1); 1],'--','color',colours(8,:),'linewidth',linewidth);
+%             % Plots for results
+%             plot(OM*edg_min_thrgpt(:,1,n_pa,1),[cdf_min_thrgpt(:,1,n_pa,1); 1],'-' ,'color',colours(1,:),'linewidth',linewidth);
+%             plot(OM*edg_min_thrgpt(:,1,n_pa,2),[cdf_min_thrgpt(:,1,n_pa,2); 1],'-' ,'color',colours(2,:),'linewidth',linewidth);
+%             plot(OM*edg_min_thrgpt(:,1,n_pa,3),[cdf_min_thrgpt(:,1,n_pa,3); 1],'-' ,'color',colours(3,:),'linewidth',linewidth);
+%             plot(OM*edg_min_thrgpt(:,1,n_pa,4),[cdf_min_thrgpt(:,1,n_pa,4); 1],'-' ,'color',colours(4,:),'linewidth',linewidth);
+%             plot(OM*edg_min_thrgpt(:,2,n_pa,1),[cdf_min_thrgpt(:,2,n_pa,1); 1],'--','color',colours(1,:),'linewidth',linewidth);
+%             plot(OM*edg_min_thrgpt(:,2,n_pa,2),[cdf_min_thrgpt(:,2,n_pa,2); 1],'--','color',colours(2,:),'linewidth',linewidth);
+%             plot(OM*edg_min_thrgpt(:,2,n_pa,3),[cdf_min_thrgpt(:,2,n_pa,3); 1],'--','color',colours(3,:),'linewidth',linewidth);
+%             plot(OM*edg_min_thrgpt(:,2,n_pa,4),[cdf_min_thrgpt(:,2,n_pa,4); 1],'--','color',colours(4,:),'linewidth',linewidth);
+%     
+%             xlabel('Min-throughput (Mbps)','fontname',fontname,'fontsize',fontsize);
+%             ylabel('Cumulative distribution','fontname',fontname,'fontsize',fontsize);
+%     
+%             legend(legend_algo_plus_prec,'fontname',fontname,'fontsize',fontsize,'location',location_1,'numcolumns',2);
+%             legend box off;
+%     
+%             set(gca,'fontname',fontname,'fontsize',fontsize);
+%     
+%             ylim([0 1]);
+%     
+%             if savefig == 1
+%                 saveas(gcf,[root_save 'cdf_min_throughput_ur_los_' legend_pa{n_pa} '_M_' num2str(M) '_K_' num2str(K) '_L_' num2str(L_prime) '_SNR_' num2str(snr) '_dB_R_' num2str(R) '_MC_' num2str(MC)],'fig');
+%                 saveas(gcf,[root_save 'cdf_min_throughput_ur_los_' legend_pa{n_pa} '_M_' num2str(M) '_K_' num2str(K) '_L_' num2str(L_prime) '_SNR_' num2str(snr) '_dB_R_' num2str(R) '_MC_' num2str(MC)],'png');
+%                 saveas(gcf,[root_save 'cdf_min_throughput_ur_los_' legend_pa{n_pa} '_M_' num2str(M) '_K_' num2str(K) '_L_' num2str(L_prime) '_SNR_' num2str(snr) '_dB_R_' num2str(R) '_MC_' num2str(MC)],'epsc2');
+%             end
     end
 end
