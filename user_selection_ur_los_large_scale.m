@@ -54,7 +54,7 @@ snr        = 10^((snr_db)/10);                                       % SNR
 % Initialization
 
 % algorithm_type = {'exhaustive search selection ep','exhaustive search selection mmf','semi-orthogonal selection','fr-based selection'};
-algorithm_type = {'ici-based selection','fr-based selection'};
+algorithm_type = {'lsf ratio selection','correlation-based selection', 'ici-based selection','fr-based selection'};
 
 if K > M
     L_max = M;
