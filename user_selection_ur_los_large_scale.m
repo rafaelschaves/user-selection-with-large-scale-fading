@@ -23,7 +23,7 @@ if ~exist('K','var')
     K = 10;                                                                % Number of users at the cell
 end
 
-N_ALG = 2;
+N_ALG = 4;
 N_PRE = 2;
 N_PA  = 2;
 
