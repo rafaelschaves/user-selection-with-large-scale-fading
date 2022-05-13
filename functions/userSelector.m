@@ -141,16 +141,17 @@ end
 
 function [H_s,varargout] = lsfRatioSelection(H,beta,L)
 
-    K = size(beta,1);                                              % Number users
+    S_set = zeros(L,1);
+    
+    beta_aux = beta;
 
-    S_set = (1:K)';
-    S_set_drop = zeros(K-L,1);
+    for i = 1:L
+        [~,S_set(i)] = max(beta_aux);
 
-    for i = 1:K-L
-        [~,S_set_drop(i)] = min(beta);
+        beta_aux(S_set(i)) = 0;
     end
 
-    S_set(S_set_drop) = [];
+    S_set = sort(S_set);
 
     H_s = H(:,S_set);
 
