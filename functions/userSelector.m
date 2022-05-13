@@ -23,6 +23,8 @@ switch alg
         [H_s,varargout{1}] = exhaustiveSearchSelectionEP(H,beta,rho,L);
     case 'EXHAUSTIVE SEARCH SELECTION MMF'
         [H_s,varargout{1}] = exhaustiveSearchSelectionMMF(H,beta,rho,L);
+    case 'LSF RATIO SELECTION'
+        [H_s,varargout{1}] = lsfRatioSelection(H,beta,L);
     case 'SEMI-ORTHOGONAL SELECTION'
         [H_s,varargout{1}] = semiOrthogonalSelection(H,beta,L);
     case 'CORRELATION-BASED SELECTION'
@@ -135,6 +137,25 @@ S_set(:,2) = S_set_zf';
 
 varargout{1} = S_set;
 
+end
+
+function [H_s,varargout] = lsfRatioSelection(H,beta,L)
+
+    K = size(beta,1);                                              % Number users
+
+    S_set = (1:K)';
+    S_set_drop = zeros(K-L,1);
+
+    for i = 1:K-L
+        [~,S_set_drop(i)] = min(beta);
+    end
+
+    S_set(S_set_drop) = [];
+
+    H_s = H(:,S_set);
+
+    varargout{1} = S_set;
+    
 end
 
 function [H_s,varargout] = semiOrthogonalSelection(H,beta,L)
